@@ -1,13 +1,11 @@
 const url =
     "https://gist.githubusercontent.com/josejbocanegra/9a28c356416badb8f9173daf36d1460b/raw/5ea84b9d43ff494fcbf5c5186544a18b42812f09/restaurant.json";
 fetch(url)
-    .then((res) => res.json())
-    .then((res) => {
-        datos = res;
+    .then((response) => response.json())
+    .then((respuesta) => {
+        datos = respuesta;
         mostrarMenu(btnBurgers);
     });
-
-
 
 
 let btnBurgers = document.getElementById("burgers");
@@ -31,9 +29,15 @@ btnDrinks.addEventListener("click", () => {
     mostrarMenu(btnDrinks);
 });
 
-
+let contador = 1;
+let map = new Map();
+let map2 = new Map();
+datos = null;
+datosTemp = [];
+arregloConfirmacion = [];
 let titulo = document.getElementById("tituloMenu");
 
+let objeto = new Object();
 
 
 
@@ -59,20 +63,18 @@ function mostrarMenu(element) {
 
         for (let j = 0; j < datos[i].products.length; j++) {
             cadena += ` 
-                  <div class="col-3" style="padding: 5px;">                                 
-                  <div class="card" style="margin-bottom: 20px;">
-                    <img class="card-img-top" style="height: 12rem;" src=${datosTemp[i].products[j].image} alt="Imagen Producto">                  
-                    <div class="card-body">              
-                      <h5 class="card-title"> ${datosTemp[i].products[j].name} </h5> 
-                      <p class="card-text"> Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptate
-                      beatae porro praesentium architecto totam neque sint animi adipisci
-                      reprehenderit quas! 
-                      </p>
-                      <p><strong>$${datosTemp[i].products[j].price}</strong></p>
-                      <footer><a  class="btn btn-dark" id="${datosTemp[i].products[j].name}"> Add to cart </a></footer>
-                    </div>
+                <div class="col-3" style="padding: 5px;">                                 
+                <div class="card" style="margin-bottom: 20px;">
+                  <img class="card-img-top" style="height: 12rem;" src=${datosTemp[i].products[j].image} alt="Imagen Producto">                  
+                  <div class="card-body">              
+                    <h5 class="card-title"> ${datosTemp[i].products[j].name} </h5> 
+                    <p class="card-text"> ${datosTemp[i].products[j].description}
+                    </p>
+                    <p><strong>$${datosTemp[i].products[j].price}</strong></p>
+                    <footer><a  class="btn btn-dark" id="${datosTemp[i].products[j].name}"> Add to cart </a></footer>
                   </div>
-                  </div>`;
+                </div>
+                </div>`;
         }
     }
 
@@ -93,11 +95,113 @@ function mostrarMenu(element) {
 
 let compras = document.getElementById("img-carrito");
 
-let carrito = document.getElementById("numItems");
+function mostrarCompras() {
+    let cadena = "";
+    let cadena1 = "";
+    let main = document.getElementById("main1");
+    cadena1 += "<h2>Order Detail</h2>";
+    titulo.innerHTML = cadena1;
+    let ext = `<table class="table table-striped">  <thead>
+    <tr>
+      <th scope="col">Item</th>
+      <th scope="col">Qty</th>
+      <th scope="col">Description</th>
+      <th scope="col">Unit Price</th>
+      <th scope="col">Amount</th>
+      <th scope="col">Modify</th>
+    </tr>
+  </thead>
+  <tbody>    
+  `;
+    let cont = 1;
+    let total = 0;
+    map.forEach(function(value, key) {
+        cadena += `
+        <tr>
+          <th scope="row">${cont}</th>
+          <td>${value}</td>
+          <td>${key}</td>
+          <td>${map2.get(key)}</td>
+          <td>${(map2.get(key) * value).toFixed(2)}</td>
+          <td><button type="button" class="btn btn-dark" id="botonMas${map.get(key)}">+</button><button type="button" class="btn btn-dark" id="botonMenos${map.get(key)}">-</button></td>
+        </tr>`;
+        total += map2.get(key) * value;
+        objeto.item = cont;
+        objeto.quantity = value;
+        objeto.description = key;
+        objeto.unitPrice = map2.get(key);
+        arregloConfirmacion.push(objeto);
+        cont++;
+        objeto = new Object();
 
-let contador = 1;
-let map = new Map();
-let map2 = new Map();
+        //let btnMas = document.getElementById("botonMas");
+        //btnMas.addEventListener("click", () => {
+
+
+        // })
+
+        // let btnMenos = document.getElementById("botonMenos");
+        // btnMenos.addEventListener("click", () => {
+
+
+        // })
+    });
+
+    main.innerHTML =
+        ext +
+        cadena +
+        `
+    </tbody>
+    </table>
+    <p><strong>Total: $${total.toFixed(2)}</strong>
+    <button type="button" class="btn btn-primary" id="ordenConfirmada" style="background-color: antiquewhite !important; color: black; float: right;">Confirm Order</button>
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalInfo" style="background-color: tomato !important; color: black; float: right;">Cancel</button>    
+    </p>`;
+
+    //for(let i=0; i<map2.length; i++){
+
+    //    let string1="botonMas"+i.toString;
+    //   let string2="botonMenos"+i.toString;
+
+
+    //   let btnMas = document.getElementById(string1);
+    //   btnMas.addEventListener("click", () => {
+
+
+    //    })
+
+    //    let btnMenos = document.getElementById(string2);
+    //    btnMenos.addEventListener("click", () => {
+
+
+    //   })
+    // }
+
+    let btnOrdenConfirmada = document.getElementById("ordenConfirmada");
+    btnOrdenConfirmada.addEventListener("click", () => {
+        console.log(arregloConfirmacion);
+    });
+
+}
+
+let btnConfirmaCancelar = document.getElementById("confirmaCancelar");
+btnConfirmaCancelar.addEventListener("click", () => {
+    map.clear();
+    map2.clear();
+    mostrarCompras();
+    $("#modalInfo").modal("toggle");
+    carrito.innerHTML = "<p></p>";
+});
+let btnCerrarModal = document.getElementById("cerrarModal");
+btnCerrarModal.addEventListener("click", () => {
+    $("#modalInfo").modal("toggle");
+});
+
+compras.addEventListener("click", () => {
+    mostrarCompras();
+});
+
+let carrito = document.getElementById("numItems");
 
 function agregarItem(id, precio) {
     let nuevoContador = contador++;
