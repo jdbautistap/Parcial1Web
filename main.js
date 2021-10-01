@@ -68,8 +68,7 @@ function mostrarMenu(element) {
                   <img class="card-img-top" style="height: 12rem;" src=${datosTemp[i].products[j].image} alt="Imagen Producto">                  
                   <div class="card-body">              
                     <h5 class="card-title"> ${datosTemp[i].products[j].name} </h5> 
-                    <p class="card-text"> ${datosTemp[i].products[j].description}
-                    </p>
+                    <p class="card-text"> ${datosTemp[i].products[j].description}</p>
                     <p><strong>$${datosTemp[i].products[j].price}</strong></p>
                     <footer><a  class="btn btn-dark" id="${datosTemp[i].products[j].name}"> Add to cart </a></footer>
                   </div>
@@ -101,7 +100,7 @@ function mostrarCompras() {
     let main = document.getElementById("main1");
     cadena1 += "<h2>Order Detail</h2>";
     titulo.innerHTML = cadena1;
-    let ext = `<table class="table table-striped">  <thead>
+    let ext = `<table class="table table-striped" id="tablaOrden">  <thead>
     <tr>
       <th scope="col">Item</th>
       <th scope="col">Qty</th>
@@ -117,13 +116,13 @@ function mostrarCompras() {
     let total = 0;
     map.forEach(function(value, key) {
         cadena += `
-        <tr>
+        <tr id="${key}">
           <th scope="row">${cont}</th>
           <td>${value}</td>
           <td>${key}</td>
           <td>${map2.get(key)}</td>
           <td>${(map2.get(key) * value).toFixed(2)}</td>
-          <td><button type="button" class="btn btn-dark" id="botonMas${map.get(key)}">+</button><button type="button" class="btn btn-dark" id="botonMenos${map.get(key)}">-</button></td>
+          <td><button type="button" class="btn btn-dark" onclick="${() => modificarCelda(key, value)}" id="botonMas${key.toString}${map2.get(key)}">+</button><button type="button" class="btn btn-dark" id="botonMenos${cont.toString}">-</button></td>
         </tr>`;
         total += map2.get(key) * value;
         objeto.item = cont;
@@ -134,18 +133,10 @@ function mostrarCompras() {
         cont++;
         objeto = new Object();
 
-        //let btnMas = document.getElementById("botonMas");
-        //btnMas.addEventListener("click", () => {
 
 
-        // })
-
-        // let btnMenos = document.getElementById("botonMenos");
-        // btnMenos.addEventListener("click", () => {
-
-
-        // })
     });
+
 
     main.innerHTML =
         ext +
@@ -158,29 +149,7 @@ function mostrarCompras() {
     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalInfo" style="background-color: tomato !important; color: black; float: right;">Cancel</button>    
     </p>`;
 
-    //for(let i=0; i<map2.length; i++){
 
-    //    let string1="botonMas"+i.toString;
-    //   let string2="botonMenos"+i.toString;
-
-
-    //   let btnMas = document.getElementById(string1);
-    //   btnMas.addEventListener("click", () => {
-
-
-    //    })
-
-    //    let btnMenos = document.getElementById(string2);
-    //    btnMenos.addEventListener("click", () => {
-
-
-    //   })
-    // }
-
-    let btnOrdenConfirmada = document.getElementById("ordenConfirmada");
-    btnOrdenConfirmada.addEventListener("click", () => {
-        console.log(arregloConfirmacion);
-    });
 
 }
 
@@ -202,6 +171,12 @@ compras.addEventListener("click", () => {
 });
 
 let carrito = document.getElementById("numItems");
+
+function agregarMas(id, precio) {
+
+    agregarItem(id, precio);
+    mostrarCompras();
+}
 
 function agregarItem(id, precio) {
     let nuevoContador = contador++;
